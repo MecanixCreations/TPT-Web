@@ -1,0 +1,52 @@
+<html>
+
+<body>
+    <p id="status" style="display: none;">Loading...</p>
+    <img id="loading" src="/Themes/Next/Design/Images/wasm-loading.webp"/>
+    <canvas style="display: none;" class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <script type='text/javascript'>
+        const variant = new URLSearchParams(window.location.search).get('variant') || 'powder';
+        (() => {
+            var promise;
+    
+            window.create_powder_loader = () => {
+                if (promise === undefined) {
+                    promise = new Promise((resolve, reject) => {
+                        const script = document.createElement("script");
+                        script.onload = () => {
+                            resolve(window['create_' + variant]);
+                        };
+                        document.head.appendChild(script);
+                        script.src = '/wasm/' + variant + '.js';
+                    });
+                }
+                return promise;
+            };
+        })();
+        (() => {
+            var canvas = document.getElementById('canvas');
+            var status = document.getElementById('status');
+            var loading = document.getElementById('loading');
+            window.mark_presentable = function() {
+                loading.style.display = 'none';
+                canvas.style.display = 'initial';
+            };
+            window.onerror = (event) => {
+                status.innerText = 'Exception thrown, see JavaScript console';
+                status.style.display = 'initial';
+            };
+            create_powder_loader().then(create_powder => create_powder({
+                canvas: (() => {
+                    canvas.addEventListener("webglcontextlost", e => {
+                        alert('WebGL context lost. You will need to reload the page.'); e.preventDefault();
+                    }, false);
+                    return canvas;
+                })(),
+                print: console.log,
+                printErr: console.log,
+            }));
+        })();
+    </script>
+
+</body>
+</html>
