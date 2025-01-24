@@ -35,7 +35,7 @@
                             resolve(window['create_' + variant]);
                         };
                         document.head.appendChild(script);
-                        script.src = '/wasm/' + variant + '.js';
+                        script.src = './' + variant + '.js';
                     });
                 }
                 return promise;
